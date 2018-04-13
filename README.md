@@ -1,6 +1,13 @@
 # Commands to reproduce the RNA-Seq analysis of M. ovinus published in Husnik et al.
 
 # Melophagus ovinus
+
+```
+#!/usr/bin/bash
+set -e
+set -o pipefail
+```
+
 *Data quality assesment in FastQC*
 ```
 /opt/FastQC/fastqc *.fastq.gz
@@ -77,6 +84,22 @@ blastn -task megablast -query Trinity.fasta -db /scratch/NCBI_NT/nt -outfmt '6 q
 *Differential expression analysis in EdgeR*
 
 *Functional annotation in Trinotate*
+```
+blastx -query Trinity.fasta -db /opt/Trinotate-Trinotate-v3.1.1/uniprot_sprot.pep -num_threads 8 -max_target_seqs 1 -outfmt 6 > blastx.outfmt6
+blastp -query transdecoder.pep -db /opt/Trinotate-Trinotate-v3.1.1/uniprot_sprot.pep -num_threads 8 -max_target_seqs 1 -outfmt 6 > blastp.outfmt6
+hmmscan --cpu 8 --domtblout /opt/Trinotate-Trinotate-v3.1.1/TrinotatePFAM.out Pfam-A.hmm transdecoder.pep > pfam.log
+/opt/signalp-4.1/signalp_4.1 -f short -n signalp.out Trinity.fasta.transdecoder.pep
+/opt/tmhmm-2.0c/bin/tmhmm --short < transdecoder.pep > tmhmm.out
+#/opt/trinityrnaseq-Trinity-v2.4.0/util/support_scripts/get_Trinity_gene_to_trans_map.pl Trinity.fasta >  Trinity.fasta.gene_trans_map
+
+/opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite init --gene_trans_map Trinity.fasta.gene_trans_map --transcript_fasta Trinity.fasta --transdecoder_pep Trinity.fasta.transdecoder.pep
+/opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_swissprot_blastp blastp.outfmt6
+/opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_swissprot_blastx blastx.outfmt6
+/opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_pfam TrinotatePFAM.out
+/opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_tmhmm tmhmm.out
+/opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_signalp signalp.out
+/opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite report > trinotate_annotation_report.xls
+```
 
 # Arsenophonus melophagi
 
