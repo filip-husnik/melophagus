@@ -80,8 +80,19 @@ blastn -task megablast -query Trinity.fasta -db /scratch/NCBI_NT/nt -outfmt '6 q
 ```
 /opt/trinityrnaseq-Trinity-v2.4.0/util/align_and_estimate_abundance.pl --transcripts Trinity.fasta --seqType fq --samples_file samples_files.tsv --est_method RSEM --output_dir RSEM_abundance --aln_method bowtie2 --SS_lib_type RF --thread_count 24 --trinity_mode --prep_reference
 ```
+*Strict removal of contamination and lowly expressed transcripts !!!!!TEST FIRST!!!!!
+```
+/opt/trinityrnaseq-Trinity-v2.4.0/util/filter_low_expr_transcripts.pl --matrix edgeR_results/matrix.TPM.not_cross_norm --transcripts Trinity.fasta --min_expr_any 1 > Trinity_expressed_1.fasta
+
+grep "#" -v blobDB.bestsum.table.txt | grep "Bacteria" -v | grep "Euglenozoa" -v | cut -f1 > decontaminate_transcriptome_ids.txt
+perl -ne 'if(/^>(\S+)/){$c=$i{$1}}$c?print:chomp;$i{$_}=1 if @ARGV' decontaminate_transcriptome_ids.txt Trinity_expressed_1.fasta > Trinity_expressed_decontaminated.fasta
+```
 
 *Differential expression analysis in EdgeR*
+```
+#NAJIT DATA
+```
+
 
 *Functional annotation in Trinotate*
 ```
