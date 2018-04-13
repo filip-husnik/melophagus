@@ -54,7 +54,7 @@ set -o pipefail
 /opt/TransDecoder-TransDecoder-v5.1.0/TransDecoder.LongOrfs -t Trinity.fasta
 /opt/TransDecoder-TransDecoder-v5.1.0/TransDecoder.Predict -t Trinity.fasta
 ```
-*Species composition assesmennt in Blobtools*
+*Species composition assesmennt for gut vs bacteriome in Blobtools*
 ```
 bowtie2-build Trinity.fasta Trinity.fasta
 bowtie2 -p 10 -q -k 20 -x Trinity.fasta -1 B1_ATCACG_L002_R1_trim_001.fastq.gz,B2_CGATGT_L002_R1_trim_001.fastq.gz,B4_TTAGGC_L002_R1_trim_001.fastq.gz,B6_TGACCA_L002_R1_trim_001.fastq.gz,B7_ACAGTG_L002_R1_trim_001.fastq.gz -2 B1_ATCACG_L002_R2_trim_001.fastq.gz,B2_CGATGT_L002_R2_trim_001.fastq.gz,B4_TTAGGC_L002_R2_trim_001.fastq.gz,B6_TGACCA_L002_R2_trim_001.fastq.gz,B7_ACAGTG_L002_R2_trim_001.fastq.gz > melophagus_bacteriome_aligned.sam
@@ -82,17 +82,24 @@ blastn -task megablast -query Trinity.fasta -db /scratch/NCBI_NT/nt -outfmt '6 q
 ```
 *Strict removal of contamination and lowly expressed transcripts !!!!!TEST FIRST!!!!!
 ```
-/opt/trinityrnaseq-Trinity-v2.4.0/util/filter_low_expr_transcripts.pl --matrix edgeR_results/matrix.TPM.not_cross_norm --transcripts Trinity.fasta --min_expr_any 1 > Trinity_expressed_1.fasta
+/opt/trinityrnaseq-Trinity-v2.4.0/util/filter_low_expr_transcripts.pl --matrix RSEM_results/matrix.TPM.not_cross_norm --transcripts Trinity.fasta --min_expr_any 1 > Trinity_expressed_1.fasta
 
 grep "#" -v blobDB.bestsum.table.txt | grep "Bacteria" -v | grep "Euglenozoa" -v | cut -f1 > decontaminate_transcriptome_ids.txt
 perl -ne 'if(/^>(\S+)/){$c=$i{$1}}$c?print:chomp;$i{$_}=1 if @ARGV' decontaminate_transcriptome_ids.txt Trinity_expressed_1.fasta > Trinity_expressed_decontaminated.fasta
 ```
+*QC samples and biological replicates
+```
+/opt/trinityrnaseq-Trinity-v2.4.0/Analysis/DifferentialExpression/PtR --matrix RSEM_results/matrix.counts.matrix --samples samples_files.tsv --CPM --log2 --min_rowSums 10 --compare_replicates
+
+/opt/trinityrnaseq-Trinity-v2.4.0/Analysis/DifferentialExpression/PtR --matrix RSEM_results/matrix.counts.matrix --min_rowSums 10 -s samples_files.tsv --log2 --CPM --sample_cor_matrix
+
+/opt/trinityrnaseq-Trinity-v2.4.0/Analysis/DifferentialExpression/PtR --matrix RSEM_results/matrix.counts.matrix -s samples_files.tsv --min_rowSums 10 --log2 --CPM --center_rows --prin_comp 3
+```
 
 *Differential expression analysis in EdgeR*
 ```
-#NAJIT DATA
+/opt/trinityrnaseq-Trinity-v2.4.0/Analysis/DifferentialExpression/run_DE_analysis.pl --matrix RSEM_results/matrix.counts.matrix --method edgeR --samples_file samples_files.tsv
 ```
-
 
 *Functional annotation in Trinotate*
 ```
