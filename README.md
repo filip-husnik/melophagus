@@ -39,17 +39,17 @@ set -o pipefail
 /opt/phyloFlash_v3.1b2/phyloFlash.pl -lib S6_DNA -CPUs 12 -read1 ../../DNA-seq_test/s_6_1_forward_trimmed.fq.gz -read2 ../DNA-seq_test/s_6_1_reverse_trimmed.fq.gz -dbhome /Data/filip/phyloFlash_DB/128/ -zip -readlength 100 -almosteverything -id 65
 ```
 
-*Transcriptome assembly in Trinity (singletons not used)*
+*Total metatranscriptome assembly in Trinity (singletons not used)*
 ```
 /opt/trinityrnaseq-Trinity-v2.4.0/Trinity --normalize_max_read_cov 50 --full_cleanup --trimmomatic --SS_lib_type RF --CPU 6 --seqType fq --min_contig_length 300 --max_memory 150G --left B1_ATCACG_L002_R1_trim_001.fastq.gz,B2_CGATGT_L002_R1_trim_001.fastq.gz,B4_TTAGGC_L002_R1_trim_001.fastq.gz,B6_TGACCA_L002_R1_trim_001.fastq.gz,B7_ACAGTG_L002_R1_trim_001.fastq.gz,G1_CAGATC_L002_R1_trim_001.fastq.gz,G2_ACTTGA_L002_R1_trim_001.fastq.gz,G4_GATCAG_L002_R1_trim_001.fastq.gz,G6_TAGCTT_L002_R1_trim_001.fastq.gz,G7_GGCTAC_L002_R1_trim_001.fastq.gz,1-MO3_130830_L004_R1.fastq.gz,2-M4_130830_L004_R1.fastq.gz --right B1_ATCACG_L002_R2_trim_001.fastq.gz,B2_CGATGT_L002_R2_trim_001.fastq.gz,B4_TTAGGC_L002_R2_trim_001.fastq.gz,B6_TGACCA_L002_R2_trim_001.fastq.gz,B7_ACAGTG_L002_R2_trim_001.fastq.gz,G1_CAGATC_L002_R2_trim_001.fastq.gz,G2_ACTTGA_L002_R2_trim_001.fastq.gz,G4_GATCAG_L002_R2_trim_001.fastq.gz,G6_TAGCTT_L002_R2_trim_001.fastq.gz,G7_GGCTAC_L002_R2_trim_001.fastq.gz,1-MO3_130830_L004_R2.fastq.gz,2-M4_130830_L004_R2.fastq.gz
 # To print basic statistics
 /opt/trinityrnaseq-Trinity-v2.4.0/util/TrinityStats.pl Trinity.fasta
 ```
-*Completeness assesment in BUSCO*
+*Completeness assesment in BUSCO (total metatranscriptome)*
 ```
 /opt/BUSCO_v3.0.2b/scripts/run_BUSCO.py -i Trinity.fasta -c 8 -o BUSCO_euk -m transcriptome -l /opt/BUSCO_v3.0.2b/databases/eukaryota_odb9/ --long
 ```
-*Protein prediction in Transdecoder*
+*Protein prediction in Transdecoder (total metatranscriptome)*
 ```
 /opt/TransDecoder-TransDecoder-v5.1.0/TransDecoder.LongOrfs -t Trinity.fasta
 /opt/TransDecoder-TransDecoder-v5.1.0/TransDecoder.Predict -t Trinity.fasta
@@ -80,11 +80,11 @@ blastn -task megablast -query Trinity.fasta -db /scratch/NCBI_NT/nt -outfmt '6 q
 ```
 /opt/trinityrnaseq-Trinity-v2.4.0/util/align_and_estimate_abundance.pl --transcripts Trinity.fasta --seqType fq --samples_file samples_files.tsv --est_method RSEM --output_dir RSEM_abundance --aln_method bowtie2 --SS_lib_type RF --thread_count 24 --trinity_mode --prep_reference
 ```
-*Strict removal of contamination and lowly expressed transcripts !!!!!TEST FIRST!!!!!
+*Relatively strict removal of contamination and lowly expressed transcripts
 ```
 /opt/trinityrnaseq-Trinity-v2.4.0/util/filter_low_expr_transcripts.pl --matrix RSEM_results/matrix.TPM.not_cross_norm --transcripts Trinity.fasta --min_expr_any 1 > Trinity_expressed_1.fasta
 
-grep "#" -v blobDB.bestsum.table.txt | grep "Bacteria" -v | grep "Euglenozoa" -v | cut -f1 > decontaminate_transcriptome_ids.txt
+grep "#" -v blobDB.bestsum.table.txt | grep "Bacteria" -v | grep "Chordata" -v | grep "Kinetoplastida" -v | cut -f1 > decontaminate_transcriptome_ids.txt
 perl -ne 'if(/^>(\S+)/){$c=$i{$1}}$c?print:chomp;$i{$_}=1 if @ARGV' decontaminate_transcriptome_ids.txt Trinity_expressed_1.fasta > Trinity_expressed_decontaminated.fasta
 ```
 *QC samples and biological replicates
