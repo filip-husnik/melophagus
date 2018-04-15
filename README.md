@@ -115,10 +115,10 @@ perl -ne 'if(/^>(\S+)/){$c=$i{$1}}$c?print:chomp;$i{$_}=1 if @ARGV' decontaminat
 *Functional annotation in Trinotate*
 ```
 blastx -query Trinity.fasta -db /opt/Trinotate-Trinotate-v3.1.1/uniprot_sprot.pep -num_threads 16 -max_target_seqs 1 -outfmt 6 > blastx.outfmt6
-blastp -query transdecoder.pep -db /opt/Trinotate-Trinotate-v3.1.1/uniprot_sprot.pep -num_threads 16 -max_target_seqs 1 -outfmt 6 > blastp.outfmt6
-hmmscan --cpu 16 --domtblout /opt/Trinotate-Trinotate-v3.1.1/TrinotatePFAM.out Pfam-A.hmm transdecoder.pep > pfam.log
+blastp -query Trinity.fasta.transdecoder.pep -db /opt/Trinotate-Trinotate-v3.1.1/uniprot_sprot.pep -num_threads 16 -max_target_seqs 1 -outfmt 6 > blastp.outfmt6
+hmmscan --cpu 16 --domtblout TrinotatePFAM.out /opt/Trinotate-Trinotate-v3.1.1/Pfam-A.hmm Trinity.fasta.transdecoder.pep > pfam.log
 /opt/signalp-4.1/signalp_4.1 -f short -n signalp.out Trinity.fasta.transdecoder.pep
-/opt/tmhmm-2.0c/bin/tmhmm --short < transdecoder.pep > tmhmm.out
+/opt/tmhmm-2.0c/bin/tmhmm --short < Trinity.fasta.transdecoder.pep > tmhmm.out
 #/opt/trinityrnaseq-Trinity-v2.4.0/util/support_scripts/get_Trinity_gene_to_trans_map.pl Trinity.fasta >  Trinity.fasta.gene_trans_map
 
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite init --gene_trans_map Trinity.fasta.gene_trans_map --transcript_fasta Trinity.fasta --transdecoder_pep Trinity.fasta.transdecoder.pep
@@ -128,6 +128,35 @@ hmmscan --cpu 16 --domtblout /opt/Trinotate-Trinotate-v3.1.1/TrinotatePFAM.out P
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_tmhmm tmhmm.out
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_signalp signalp.out
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite report > trinotate_annotation_report.xls
+```
+
+*Create a Trinotate Web database (not properly tested)*
+
+```
+# First create a boiler plate database TrinotateWeb.sqlite
+
+#MISSING!
+
+# Import the fpkm and DE analysis stuff
+/opt/Trinotate-Trinotate-v3.1.1/util/transcript_expression/import_expression_and_DE_results.pl \
+          --sqlite TrinotateWeb.sqlite \
+          --samples_file samples_n_reads_described.txt \
+          --count_matrix Trinity_trans.counts.matrix \
+          --fpkm_matrix Trinity_trans.counts.matrix.TMM_normalized.FPKM \
+          --DE_dir edgeR_trans/ \
+          --transcript_mode
+          
+# Import text annotations
+/opt/Trinotate-Trinotate-v3.1.1/util/annotation_importer/import_transcript_names.pl TrinotateWeb.sqlite trinotate_annotation_report.xls
+
+# Import species assignment from the Blobtools taxonomy table
+#gene_id (tab) transcript_id (tab) annotation text
+
+#MISSING!
+
+#Run the webserver
+/opt/Trinotate-Trinotate-v3.1.1/run_TrinotateWebserver.pl 8080
+#http://localhost:8080/cgi-bin/index.cgi
 ```
 
 # Arsenophonus melophagi
