@@ -19,7 +19,7 @@ set -o pipefail
 *SSU contamination assesment in PhyloFlash*
 ```
 #RNA-Seq
-/opt/phyloFlash_v3.1b2/phyloFlash.pl -lib female -CPUs 12 -read1 ../1-MO3_130830_L004_R0.fastq.gz -read2 ../1-MO3_130830_L004_R1.fastq.gz -dbhome /Data/filip/phyloFlash_DB/128/ -zip -readlength 100 -almosteverything -id 65 -readlimit 5000000
+/opt/phyloFlash_v3.1b2/phyloFlash.pl -lib female -CPUs 12 -read1 ../1-MO3_130830_L004_R1.fastq.gz -read2 ../1-MO3_130830_L004_R2.fastq.gz -dbhome /Data/filip/phyloFlash_DB/128/ -zip -readlength 100 -almosteverything -id 65 -readlimit 5000000
 /opt/phyloFlash_v3.1b2/phyloFlash.pl -lib male -CPUs 12 -read1 ../2-M4_130830_L004_R1.fastq.gz -read2 ../2-M4_130830_L004_R2.fastq.gz -dbhome /Data/filip/phyloFlash_DB/128/ -zip -readlength 100 -almosteverything -id 65 -readlimit 5000000
 
 /opt/phyloFlash_v3.1b2/phyloFlash.pl -lib B1 -CPUs 12 -read1 ../B1_ATCACG_L002_R1_trim_001.fastq.gz -read2 ../B1_ATCACG_L002_R2_trim_001.fastq.gz -dbhome /Data/filip/phyloFlash_DB/128/ -zip -readlength 100 -almosteverything -id 65
@@ -57,12 +57,12 @@ set -o pipefail
 *Species composition assesmennt for gut vs bacteriome in Blobtools*
 ```
 bowtie2-build Trinity.fasta Trinity.fasta
-bowtie2 -p 16 -q -mm -x Trinity.fasta -1 B1_ATCACG_L002_R1_trim_001.fastq.gz,B2_CGATGT_L002_R1_trim_001.fastq.gz,B4_TTAGGC_L002_R1_trim_001.fastq.gz,B6_TGACCA_L002_R1_trim_001.fastq.gz,B7_ACAGTG_L002_R1_trim_001.fastq.gz -2 B1_ATCACG_L002_R2_trim_001.fastq.gz,B2_CGATGT_L002_R2_trim_001.fastq.gz,B4_TTAGGC_L002_R2_trim_001.fastq.gz,B6_TGACCA_L002_R2_trim_001.fastq.gz,B7_ACAGTG_L002_R2_trim_001.fastq.gz > melophagus_bacteriome_aligned.sam
+bowtie2 -p 16 -q --mm -x Trinity.fasta -1 B1_ATCACG_L002_R1_trim_001.fastq.gz,B2_CGATGT_L002_R1_trim_001.fastq.gz,B4_TTAGGC_L002_R1_trim_001.fastq.gz,B6_TGACCA_L002_R1_trim_001.fastq.gz,B7_ACAGTG_L002_R1_trim_001.fastq.gz -2 B1_ATCACG_L002_R2_trim_001.fastq.gz,B2_CGATGT_L002_R2_trim_001.fastq.gz,B4_TTAGGC_L002_R2_trim_001.fastq.gz,B6_TGACCA_L002_R2_trim_001.fastq.gz,B7_ACAGTG_L002_R2_trim_001.fastq.gz > melophagus_bacteriome_aligned.sam
 
 /opt/blobtools/blobtools map2cov -i Trinity.fasta -s melophagus_bacteriome_aligned.sam
 rm melophagus_bacteriome_aligned.sam
 
-bowtie2 -p 16 -q -mm -x Trinity.fasta -1 G1_CAGATC_L002_R1_trim_001.fastq.gz,G2_ACTTGA_L002_R1_trim_001.fastq.gz,G4_GATCAG_L002_R1_trim_001.fastq.gz,G6_TAGCTT_L002_R1_trim_001.fastq.gz,G7_GGCTAC_L002_R1_trim_001.fastq.gz -2 G1_CAGATC_L002_R2_trim_001.fastq.gz,G2_ACTTGA_L002_R2_trim_001.fastq.gz,G4_GATCAG_L002_R2_trim_001.fastq.gz,G6_TAGCTT_L002_R2_trim_001.fastq.gz,G7_GGCTAC_L002_R2_trim_001.fastq.gz > melophagus_gut_aligned.sam
+bowtie2 -p 16 -q --mm -x Trinity.fasta -1 G1_CAGATC_L002_R1_trim_001.fastq.gz,G2_ACTTGA_L002_R1_trim_001.fastq.gz,G4_GATCAG_L002_R1_trim_001.fastq.gz,G6_TAGCTT_L002_R1_trim_001.fastq.gz,G7_GGCTAC_L002_R1_trim_001.fastq.gz -2 G1_CAGATC_L002_R2_trim_001.fastq.gz,G2_ACTTGA_L002_R2_trim_001.fastq.gz,G4_GATCAG_L002_R2_trim_001.fastq.gz,G6_TAGCTT_L002_R2_trim_001.fastq.gz,G7_GGCTAC_L002_R2_trim_001.fastq.gz > melophagus_gut_aligned.sam
 
 /opt/blobtools/blobtools map2cov -i Trinity.fasta -s melophagus_gut_aligned.sam
 rm melophagus_bacteriome_aligned.sam melophagus_gut_aligned.sam
@@ -87,6 +87,17 @@ blastn -task megablast -query Trinity.fasta -db /scratch/NCBI_NT/nt -outfmt '6 q
 grep "#" -v blobDB.bestsum.table.txt | grep "Bacteria" -v | grep "Chordata" -v | grep "Kinetoplastida" -v | cut -f1 > decontaminate_transcriptome_ids.txt
 perl -ne 'if(/^>(\S+)/){$c=$i{$1}}$c?print:chomp;$i{$_}=1 if @ARGV' decontaminate_transcriptome_ids.txt Trinity_expressed_1.fasta > Trinity_expressed_decontaminated.fasta
 ```
+*Completeness assesment in BUSCO (filtered M. ovinus transcriptome)*
+```
+/opt/BUSCO_v3.0.2b/scripts/run_BUSCO.py -i Trinity_expressed_decontaminated.fasta -c 8 -o BUSCO_euk_M_ovinus -m transcriptome -l /opt/BUSCO_v3.0.2b/databases/eukaryota_odb9/ --long
+```
+*Protein prediction in Transdecoder (filtered M. ovinus transcriptome)*
+```
+/opt/TransDecoder-TransDecoder-v5.1.0/TransDecoder.LongOrfs -t Trinity_expressed_decontaminated.fasta
+/opt/TransDecoder-TransDecoder-v5.1.0/TransDecoder.Predict -t Trinity_expressed_decontaminated.fasta
+```
+
+
 *QC samples and biological replicates
 ```
 /opt/trinityrnaseq-Trinity-v2.4.0/Analysis/DifferentialExpression/PtR --matrix RSEM_results/matrix.counts.matrix --samples samples_files.tsv --CPM --log2 --min_rowSums 10 --compare_replicates
@@ -103,9 +114,9 @@ perl -ne 'if(/^>(\S+)/){$c=$i{$1}}$c?print:chomp;$i{$_}=1 if @ARGV' decontaminat
 
 *Functional annotation in Trinotate*
 ```
-blastx -query Trinity.fasta -db /opt/Trinotate-Trinotate-v3.1.1/uniprot_sprot.pep -num_threads 8 -max_target_seqs 1 -outfmt 6 > blastx.outfmt6
-blastp -query transdecoder.pep -db /opt/Trinotate-Trinotate-v3.1.1/uniprot_sprot.pep -num_threads 8 -max_target_seqs 1 -outfmt 6 > blastp.outfmt6
-hmmscan --cpu 8 --domtblout /opt/Trinotate-Trinotate-v3.1.1/TrinotatePFAM.out Pfam-A.hmm transdecoder.pep > pfam.log
+blastx -query Trinity.fasta -db /opt/Trinotate-Trinotate-v3.1.1/uniprot_sprot.pep -num_threads 16 -max_target_seqs 1 -outfmt 6 > blastx.outfmt6
+blastp -query transdecoder.pep -db /opt/Trinotate-Trinotate-v3.1.1/uniprot_sprot.pep -num_threads 16 -max_target_seqs 1 -outfmt 6 > blastp.outfmt6
+hmmscan --cpu 16 --domtblout /opt/Trinotate-Trinotate-v3.1.1/TrinotatePFAM.out Pfam-A.hmm transdecoder.pep > pfam.log
 /opt/signalp-4.1/signalp_4.1 -f short -n signalp.out Trinity.fasta.transdecoder.pep
 /opt/tmhmm-2.0c/bin/tmhmm --short < transdecoder.pep > tmhmm.out
 #/opt/trinityrnaseq-Trinity-v2.4.0/util/support_scripts/get_Trinity_gene_to_trans_map.pl Trinity.fasta >  Trinity.fasta.gene_trans_map
