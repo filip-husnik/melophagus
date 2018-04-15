@@ -119,6 +119,7 @@ blastp -query Trinity.fasta.transdecoder.pep -db /opt/Trinotate-Trinotate-v3.1.1
 hmmscan --cpu 16 --domtblout TrinotatePFAM.out /opt/Trinotate-Trinotate-v3.1.1/Pfam-A.hmm Trinity.fasta.transdecoder.pep > pfam.log
 /opt/signalp-4.1/signalp_4.1 -f short -n signalp.out Trinity.fasta.transdecoder.pep
 /opt/tmhmm-2.0c/bin/tmhmm --short < Trinity.fasta.transdecoder.pep > tmhmm.out
+#/opt/Trinotate-Trinotate-v3.1.1/util/rnammer_support/RnammerTranscriptome.pl --transcriptome Trinity.fasta --path_to_rnammer /opt/rnammer-1.2/rnammer #only on Rosetta
 #/opt/trinityrnaseq-Trinity-v2.4.0/util/support_scripts/get_Trinity_gene_to_trans_map.pl Trinity.fasta >  Trinity.fasta.gene_trans_map
 
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite init --gene_trans_map Trinity.fasta.gene_trans_map --transcript_fasta Trinity.fasta --transdecoder_pep Trinity.fasta.transdecoder.pep
@@ -127,6 +128,7 @@ hmmscan --cpu 16 --domtblout TrinotatePFAM.out /opt/Trinotate-Trinotate-v3.1.1/P
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_pfam TrinotatePFAM.out
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_tmhmm tmhmm.out
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_signalp signalp.out
+/opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_rnammer Trinity.fasta.rnammer.gff
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite report > trinotate_annotation_report.xls
 ```
 
