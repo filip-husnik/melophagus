@@ -80,7 +80,7 @@ blastn -task megablast -query Trinity.fasta -db /scratch/NCBI_NT/nt -outfmt '6 q
 ```
 /opt/trinityrnaseq-Trinity-v2.4.0/util/align_and_estimate_abundance.pl --transcripts Trinity.fasta --seqType fq --samples_file samples_files.tsv --est_method RSEM --output_dir RSEM_abundance --aln_method bowtie2 --SS_lib_type RF --thread_count 24 --trinity_mode --prep_reference
 ```
-*Relatively strict removal of contamination and lowly expressed transcripts
+*Relatively strict removal of contamination and lowly expressed transcripts*
 ```
 /opt/trinityrnaseq-Trinity-v2.4.0/util/filter_low_expr_transcripts.pl --matrix RSEM_results/matrix.TPM.not_cross_norm --transcripts Trinity.fasta --min_expr_any 1 > Trinity_expressed_1.fasta
 
@@ -98,7 +98,7 @@ perl -ne 'if(/^>(\S+)/){$c=$i{$1}}$c?print:chomp;$i{$_}=1 if @ARGV' decontaminat
 ```
 
 
-*QC samples and biological replicates
+*QC samples and biological replicates*
 ```
 /opt/trinityrnaseq-Trinity-v2.4.0/Analysis/DifferentialExpression/PtR --matrix RSEM_results/matrix.counts.matrix --samples samples_files.tsv --CPM --log2 --min_rowSums 10 --compare_replicates
 
@@ -119,7 +119,14 @@ blastp -query Trinity.fasta.transdecoder.pep -db /opt/Trinotate-Trinotate-v3.1.1
 hmmscan --cpu 16 --domtblout TrinotatePFAM.out /opt/Trinotate-Trinotate-v3.1.1/Pfam-A.hmm Trinity.fasta.transdecoder.pep > pfam.log
 /opt/signalp-4.1/signalp_4.1 -f short -n signalp.out Trinity.fasta.transdecoder.pep
 /opt/tmhmm-2.0c/bin/tmhmm --short < Trinity.fasta.transdecoder.pep > tmhmm.out
-#/opt/Trinotate-Trinotate-v3.1.1/util/rnammer_support/RnammerTranscriptome.pl --transcriptome Trinity.fasta --path_to_rnammer /opt/rnammer-1.2/rnammer #only on Rosetta
+
+# Only eukaryotic rRNAs (on Rosetta)
+#/opt/Trinotate-Trinotate-v3.1.1/util/rnammer_support/RnammerTranscriptome.pl --transcriptome Trinity.fasta --path_to_rnammer /opt/rnammer-1.2/rnammer 
+
+# To also get bacterial rRNA coordinates (on Rosetta)
+#perl /opt/rnammer-1.2/rnammer -S bac -m tsu,lsu,ssu -gff bac.tmp.superscaff.rnammer.gff < transcriptSuperScaffold.fasta
+#/opt/Trinotate-Trinotate-v3.1.1/util/rnammer_support/util/rnammer_supperscaffold_gff_to_indiv_transcripts.pl -R bac.tmp.superscaff.rnammer.gff -T transcriptSuperScaffold.bed > Trinity.bac.fasta.rnammer.gff
+
 #/opt/trinityrnaseq-Trinity-v2.4.0/util/support_scripts/get_Trinity_gene_to_trans_map.pl Trinity.fasta >  Trinity.fasta.gene_trans_map
 
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite init --gene_trans_map Trinity.fasta.gene_trans_map --transcript_fasta Trinity.fasta --transdecoder_pep Trinity.fasta.transdecoder.pep
