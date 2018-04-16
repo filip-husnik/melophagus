@@ -2,8 +2,7 @@
 
 **Table of contents**
 ====================
-  * [<em>Table of contents</em>](#table-of-contents)
-      * [**Melophagus ovinus**](#melophagus-ovinus)
+  * [**Melophagus ovinus**](#melophagus-ovinus)
                   * [Data quality assesment in FastQC](#data-quality-assesment-in-fastqc)
                   * [Adapter and quality trimming in Cutadapt and Sickle](#adapter-and-quality-trimming-in-cutadapt-and-sickle)
                   * [SSU contamination assesment in PhyloFlash](#ssu-contamination-assesment-in-phyloflash)
@@ -19,7 +18,7 @@
                   * [Differential expression analysis in EdgeR](#differential-expression-analysis-in-edger)
                   * [Functional annotation in Trinotate](#functional-annotation-in-trinotate)
                   * [Create a Trinotate Web database](#create-a-trinotate-web-database)
-      * [**Arsenophonus melophagi**](#arsenophonus-melophagi)
+   * [**Arsenophonus melophagi**](#arsenophonus-melophagi)
                   * [Read mapping in Bowtie 2](#read-mapping-in-bowtie-2)
                   * [Pseudogene annotation in Pseudo-finder](#pseudogene-annotation-in-pseudo-finder)
                   * [Abundance estimation and transcriptome analysis in Rockhopper](#abundance-estimation-and-transcriptome-analysis-in-rockhopper)
