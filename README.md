@@ -197,7 +197,7 @@ rm species_annotations.txt transcripts.txt genes.txt
 /opt/Trinotate-Trinotate-v3.1.1/util/annotation_importer/import_transcript_names.pl Trinotate.sqlite taxonomy_annotation.tsv
 
 #Run the webserver on your own computer
-#/opt/Trinotate-Trinotate-v3.1.1/run_TrinotateWebserver.pl 8080
+#/home/filip/programs/Trinotate-Trinotate-v3.1.1/run_TrinotateWebserver.pl 8080
 #http://localhost:8080/cgi-bin/index.cgi
 ```
 
