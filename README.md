@@ -19,6 +19,7 @@ set -o pipefail
 *SSU contamination assesment in PhyloFlash*
 ```
 #RNA-Seq
+#Whole male/female libraries limited to 5 million reads
 /opt/phyloFlash_v3.1b2/phyloFlash.pl -lib female -CPUs 12 -read1 ../1-MO3_130830_L004_R1.fastq.gz -read2 ../1-MO3_130830_L004_R2.fastq.gz -dbhome /Data/filip/phyloFlash_DB/128/ -zip -readlength 100 -almosteverything -id 65 -readlimit 5000000
 /opt/phyloFlash_v3.1b2/phyloFlash.pl -lib male -CPUs 12 -read1 ../2-M4_130830_L004_R1.fastq.gz -read2 ../2-M4_130830_L004_R2.fastq.gz -dbhome /Data/filip/phyloFlash_DB/128/ -zip -readlength 100 -almosteverything -id 65 -readlimit 5000000
 
@@ -73,6 +74,7 @@ blastn -task megablast -query Trinity.fasta -db /scratch/NCBI_NT/nt -outfmt '6 q
 /opt/blobtools/blobtools create -i Trinity.fasta -t Trinity.fasta_assembly_vs_nt.blastn -t Trinity.fasta.vs.uniprot_ref.mts1.1e25.taxified.out -c melophagus_bacteriome_aligned.sam.cov -c melophagus_gut_aligned.sam.cov
 /opt/blobtools/blobtools plot -i blobDB.json --rank superkingdom
 /opt/blobtools/blobtools plot -i blobDB.json
+/opt/blobtools/blobtools plot -i blobDB.json --format svg --noblobs
 /opt/blobtools/blobtools view -i blobDB.json --rank all --hits
 ```
 
@@ -121,7 +123,8 @@ hmmscan --cpu 16 --domtblout TrinotatePFAM.out /opt/Trinotate-Trinotate-v3.1.1/P
 /opt/tmhmm-2.0c/bin/tmhmm --short < Trinity.fasta.transdecoder.pep > tmhmm.out
 
 # Only eukaryotic rRNAs (on Rosetta)
-#/opt/Trinotate-Trinotate-v3.1.1/util/rnammer_support/RnammerTranscriptome.pl --transcriptome Trinity.fasta --path_to_rnammer /opt/rnammer-1.2/rnammer 
+#/opt/Trinotate-Trinotate-v3.1.1/util/rnammer_support/RnammerTranscriptome.pl --transcriptome Trinity.fasta --path_to_rnammer /opt/rnammer-1.2/rnammer
+mv Trinity.fasta.rnammer.gff Trinity.euk.fasta.rnammer.gff
 
 # To also get bacterial rRNA coordinates (on Rosetta)
 #perl /opt/rnammer-1.2/rnammer -S bac -m tsu,lsu,ssu -gff bac.tmp.superscaff.rnammer.gff < transcriptSuperScaffold.fasta
@@ -135,24 +138,24 @@ hmmscan --cpu 16 --domtblout TrinotatePFAM.out /opt/Trinotate-Trinotate-v3.1.1/P
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_pfam TrinotatePFAM.out
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_tmhmm tmhmm.out
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_signalp signalp.out
-/opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_rnammer Trinity.fasta.rnammer.gff
+/opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_rnammer Trinity.euk.fasta.rnammer.gff
+/opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite LOAD_rnammer Trinity.bac.fasta.rnammer.gff
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite report > trinotate_annotation_report.xls
 ```
 
-*Create a Trinotate Web database (not properly tested)*
+*Create a Trinotate Web database*
 
 ```
 # First create a boiler plate database TrinotateWeb.sqlite
-
-#MISSING!
+cp /opt/Trinotate-Trinotate-v3.1.1/Trinotate.sqlite TrinotateWeb.sqlite
 
 # Import the fpkm and DE analysis stuff
 /opt/Trinotate-Trinotate-v3.1.1/util/transcript_expression/import_expression_and_DE_results.pl \
           --sqlite TrinotateWeb.sqlite \
-          --samples_file samples_n_reads_described.txt \
-          --count_matrix Trinity_trans.counts.matrix \
+          --samples_file samples_files.tsv \
+          --count_matrix matrix.counts.matrix \
           --fpkm_matrix Trinity_trans.counts.matrix.TMM_normalized.FPKM \
-          --DE_dir edgeR_trans/ \
+          --DE_dir edgeR_DE_results/ \
           --transcript_mode
           
 # Import text annotations
@@ -160,11 +163,17 @@ hmmscan --cpu 16 --domtblout TrinotatePFAM.out /opt/Trinotate-Trinotate-v3.1.1/P
 
 # Import species assignment from the Blobtools taxonomy table
 #gene_id (tab) transcript_id (tab) annotation text
+#create a taxonomy file first
+grep -v "#" blobDB.bestsum.table.txt | cut -f 8,12,16,20,24,28 | sed s"/\t/:/"g > species_annotations.txt
+grep -v "#" blobDB.bestsum.table.txt | cut -f 1 > transcripts.txt
+cut -f 1,2,3,4 transcripts.txt -d '_' > genes.txt
+paste genes.txt transcripts.txt species_annotations.txt > taxonomy_annotation.tsv
+rm species_annotations.txt transcripts.txt genes.txt
 
-#MISSING!
+/opt/Trinotate-Trinotate-v3.1.1/util/annotation_importer/import_transcript_names.pl Trinotate.sqlite taxonomy_annotation.tsv
 
-#Run the webserver
-/opt/Trinotate-Trinotate-v3.1.1/run_TrinotateWebserver.pl 8080
+#Run the webserver on your own computer
+#/opt/Trinotate-Trinotate-v3.1.1/run_TrinotateWebserver.pl 8080
 #http://localhost:8080/cgi-bin/index.cgi
 ```
 
