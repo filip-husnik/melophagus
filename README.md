@@ -1,6 +1,6 @@
 # Commands to reproduce the RNA-Seq analysis of M. ovinus published in Husnik et al.
 
-**Table of contents*
+*Table of contents*
 ====================
    * [Melophagus ovinus](#melophagus-ovinus)
    * [Arsenophonus melophagi](#arsenophonus-melophagi)
