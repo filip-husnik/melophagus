@@ -6,7 +6,7 @@
    * [Arsenophonus melophagi](#arsenophonus-melophagi)
 
 
-# Melophagus ovinus
+## Melophagus ovinus
 
 ```
 #!/usr/bin/bash
@@ -14,11 +14,11 @@ set -e
 set -o pipefail
 ```
 
-*Data quality assesment in FastQC*
+### Data quality assesment in FastQC
 ```
 /opt/FastQC/fastqc *.fastq.gz
 ```
-*Adapter and quality trimming in Cutadapt and Sickle*
+### Adapter and quality trimming in Cutadapt and Sickle
 ```
 # Carried out by the sequencing centre.
 ```
