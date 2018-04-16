@@ -170,15 +170,16 @@ mv Trinity.fasta.rnammer.gff Trinity.euk.fasta.rnammer.gff
 ###### Create a Trinotate Web database
 
 ```
-# First create a boiler plate database TrinotateWeb.sqlite
-cp /opt/Trinotate-Trinotate-v3.1.1/Trinotate.sqlite TrinotateWeb.sqlite
+# First cp the Trinotate.sqlite database into a new folder and name it TrinotateWeb.sqlite (it's better to keep it separated)
+cp Trinotate.sqlite TrinotateWeb/TrinotateWeb.sqlite
+cd TrinotateWeb/
 
-# Import the fpkm and DE analysis stuff
+# Import the fpkm and DE analysis stuff (matrix.counts.matrix.cond_A_vs_cond_B.edgeR.DE_results)
 /opt/Trinotate-Trinotate-v3.1.1/util/transcript_expression/import_expression_and_DE_results.pl \
           --sqlite TrinotateWeb.sqlite \
           --samples_file samples_files.tsv \
           --count_matrix matrix.counts.matrix \
-          --fpkm_matrix Trinity_trans.counts.matrix.TMM_normalized.FPKM \
+          --fpkm_matrix matrix.TMM.EXPR.matrix \
           --DE_dir edgeR_DE_results/ \
           --transcript_mode
           
@@ -194,7 +195,7 @@ cut -f 1,2,3,4 transcripts.txt -d '_' > genes.txt
 paste genes.txt transcripts.txt species_annotations.txt > taxonomy_annotation.tsv
 rm species_annotations.txt transcripts.txt genes.txt
 
-/opt/Trinotate-Trinotate-v3.1.1/util/annotation_importer/import_transcript_names.pl Trinotate.sqlite taxonomy_annotation.tsv
+/opt/Trinotate-Trinotate-v3.1.1/util/annotation_importer/import_transcript_names.pl TrinotateWeb.sqlite taxonomy_annotation.tsv
 
 #Run the webserver on your own computer
 #/home/filip/programs/Trinotate-Trinotate-v3.1.1/run_TrinotateWebserver.pl 8080
