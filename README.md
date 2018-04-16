@@ -14,15 +14,15 @@ set -e
 set -o pipefail
 ```
 
-### Data quality assesment in FastQC
+###### Data quality assesment in FastQC
 ```
 /opt/FastQC/fastqc *.fastq.gz
 ```
-### Adapter and quality trimming in Cutadapt and Sickle
+###### Adapter and quality trimming in Cutadapt and Sickle
 ```
 # Carried out by the sequencing centre.
 ```
-*SSU contamination assesment in PhyloFlash*
+###### SSU contamination assesment in PhyloFlash
 ```
 #RNA-Seq
 #Whole male/female libraries limited to 5 million reads
@@ -46,22 +46,22 @@ set -o pipefail
 /opt/phyloFlash_v3.1b2/phyloFlash.pl -lib S6_DNA -CPUs 12 -read1 ../../DNA-seq_test/s_6_1_forward_trimmed.fq.gz -read2 ../DNA-seq_test/s_6_1_reverse_trimmed.fq.gz -dbhome /Data/filip/phyloFlash_DB/128/ -zip -readlength 100 -almosteverything -id 65
 ```
 
-*Total metatranscriptome assembly in Trinity (singletons not used)*
+###### Total metatranscriptome assembly in Trinity (singletons not used)
 ```
 /opt/trinityrnaseq-Trinity-v2.4.0/Trinity --normalize_max_read_cov 50 --full_cleanup --trimmomatic --SS_lib_type RF --CPU 6 --seqType fq --min_contig_length 300 --max_memory 150G --left B1_ATCACG_L002_R1_trim_001.fastq.gz,B2_CGATGT_L002_R1_trim_001.fastq.gz,B4_TTAGGC_L002_R1_trim_001.fastq.gz,B6_TGACCA_L002_R1_trim_001.fastq.gz,B7_ACAGTG_L002_R1_trim_001.fastq.gz,G1_CAGATC_L002_R1_trim_001.fastq.gz,G2_ACTTGA_L002_R1_trim_001.fastq.gz,G4_GATCAG_L002_R1_trim_001.fastq.gz,G6_TAGCTT_L002_R1_trim_001.fastq.gz,G7_GGCTAC_L002_R1_trim_001.fastq.gz,1-MO3_130830_L004_R1.fastq.gz,2-M4_130830_L004_R1.fastq.gz --right B1_ATCACG_L002_R2_trim_001.fastq.gz,B2_CGATGT_L002_R2_trim_001.fastq.gz,B4_TTAGGC_L002_R2_trim_001.fastq.gz,B6_TGACCA_L002_R2_trim_001.fastq.gz,B7_ACAGTG_L002_R2_trim_001.fastq.gz,G1_CAGATC_L002_R2_trim_001.fastq.gz,G2_ACTTGA_L002_R2_trim_001.fastq.gz,G4_GATCAG_L002_R2_trim_001.fastq.gz,G6_TAGCTT_L002_R2_trim_001.fastq.gz,G7_GGCTAC_L002_R2_trim_001.fastq.gz,1-MO3_130830_L004_R2.fastq.gz,2-M4_130830_L004_R2.fastq.gz
 # To print basic statistics
 /opt/trinityrnaseq-Trinity-v2.4.0/util/TrinityStats.pl Trinity.fasta
 ```
-*Completeness assesment in BUSCO (total metatranscriptome)*
+###### Completeness assesment in BUSCO (total metatranscriptome)
 ```
 /opt/BUSCO_v3.0.2b/scripts/run_BUSCO.py -i Trinity.fasta -c 8 -o BUSCO_euk -m transcriptome -l /opt/BUSCO_v3.0.2b/databases/eukaryota_odb9/ --long
 ```
-*Protein prediction in Transdecoder (total metatranscriptome)*
+###### Protein prediction in Transdecoder (total metatranscriptome)
 ```
 /opt/TransDecoder-TransDecoder-v5.1.0/TransDecoder.LongOrfs -t Trinity.fasta
 /opt/TransDecoder-TransDecoder-v5.1.0/TransDecoder.Predict -t Trinity.fasta
 ```
-*Species composition assesmennt for gut vs bacteriome in Blobtools*
+###### Species composition assesmennt for gut vs bacteriome in Blobtools
 ```
 bowtie2-build Trinity.fasta Trinity.fasta
 bowtie2 -p 16 -q --mm -x Trinity.fasta -1 B1_ATCACG_L002_R1_trim_001.fastq.gz,B2_CGATGT_L002_R1_trim_001.fastq.gz,B4_TTAGGC_L002_R1_trim_001.fastq.gz,B6_TGACCA_L002_R1_trim_001.fastq.gz,B7_ACAGTG_L002_R1_trim_001.fastq.gz -2 B1_ATCACG_L002_R2_trim_001.fastq.gz,B2_CGATGT_L002_R2_trim_001.fastq.gz,B4_TTAGGC_L002_R2_trim_001.fastq.gz,B6_TGACCA_L002_R2_trim_001.fastq.gz,B7_ACAGTG_L002_R2_trim_001.fastq.gz > melophagus_bacteriome_aligned.sam
@@ -84,29 +84,29 @@ blastn -task megablast -query Trinity.fasta -db /scratch/NCBI_NT/nt -outfmt '6 q
 /opt/blobtools/blobtools view -i blobDB.json --rank all --hits
 ```
 
-*Transcript abundance estimation in RSEM*
+###### Transcript abundance estimation in RSEM
 ```
 /opt/trinityrnaseq-Trinity-v2.4.0/util/align_and_estimate_abundance.pl --transcripts Trinity.fasta --seqType fq --samples_file samples_files.tsv --est_method RSEM --output_dir RSEM_abundance --aln_method bowtie2 --SS_lib_type RF --thread_count 24 --trinity_mode --prep_reference
 ```
-*Relatively strict removal of contamination and lowly expressed transcripts*
+###### Relatively strict removal of contamination and lowly expressed transcripts
 ```
 /opt/trinityrnaseq-Trinity-v2.4.0/util/filter_low_expr_transcripts.pl --matrix RSEM_results/matrix.TPM.not_cross_norm --transcripts Trinity.fasta --min_expr_any 1 > Trinity_expressed_1.fasta
 
 grep "#" -v blobDB.bestsum.table.txt | grep "Bacteria" -v | grep "Chordata" -v | grep "Kinetoplastida" -v | cut -f1 > decontaminate_transcriptome_ids.txt
 perl -ne 'if(/^>(\S+)/){$c=$i{$1}}$c?print:chomp;$i{$_}=1 if @ARGV' decontaminate_transcriptome_ids.txt Trinity_expressed_1.fasta > Trinity_expressed_decontaminated.fasta
 ```
-*Completeness assesment in BUSCO (filtered M. ovinus transcriptome)*
+###### Completeness assesment in BUSCO (filtered M. ovinus transcriptome)
 ```
 /opt/BUSCO_v3.0.2b/scripts/run_BUSCO.py -i Trinity_expressed_decontaminated.fasta -c 8 -o BUSCO_euk_M_ovinus -m transcriptome -l /opt/BUSCO_v3.0.2b/databases/eukaryota_odb9/ --long
 ```
-*Protein prediction in Transdecoder (filtered M. ovinus transcriptome)*
+###### Protein prediction in Transdecoder (filtered M. ovinus transcriptome)
 ```
 /opt/TransDecoder-TransDecoder-v5.1.0/TransDecoder.LongOrfs -t Trinity_expressed_decontaminated.fasta
 /opt/TransDecoder-TransDecoder-v5.1.0/TransDecoder.Predict -t Trinity_expressed_decontaminated.fasta
 ```
 
 
-*QC samples and biological replicates*
+###### QC samples and biological replicates
 ```
 /opt/trinityrnaseq-Trinity-v2.4.0/Analysis/DifferentialExpression/PtR --matrix RSEM_results/matrix.counts.matrix --samples samples_files.tsv --CPM --log2 --min_rowSums 10 --compare_replicates
 
@@ -115,12 +115,12 @@ perl -ne 'if(/^>(\S+)/){$c=$i{$1}}$c?print:chomp;$i{$_}=1 if @ARGV' decontaminat
 /opt/trinityrnaseq-Trinity-v2.4.0/Analysis/DifferentialExpression/PtR --matrix RSEM_results/matrix.counts.matrix -s samples_files.tsv --min_rowSums 10 --log2 --CPM --center_rows --prin_comp 3
 ```
 
-*Differential expression analysis in EdgeR*
+###### Differential expression analysis in EdgeR
 ```
 /opt/trinityrnaseq-Trinity-v2.4.0/Analysis/DifferentialExpression/run_DE_analysis.pl --matrix RSEM_results/matrix.counts.matrix --method edgeR --samples_file samples_files.tsv
 ```
 
-*Functional annotation in Trinotate*
+###### Functional annotation in Trinotate
 ```
 blastx -query Trinity.fasta -db /opt/Trinotate-Trinotate-v3.1.1/uniprot_sprot.pep -num_threads 16 -max_target_seqs 1 -outfmt 6 > blastx.outfmt6
 blastp -query Trinity.fasta.transdecoder.pep -db /opt/Trinotate-Trinotate-v3.1.1/uniprot_sprot.pep -num_threads 16 -max_target_seqs 1 -outfmt 6 > blastp.outfmt6
@@ -149,7 +149,7 @@ mv Trinity.fasta.rnammer.gff Trinity.euk.fasta.rnammer.gff
 /opt/Trinotate-Trinotate-v3.1.1/Trinotate Trinotate.sqlite report > trinotate_annotation_report.xls
 ```
 
-*Create a Trinotate Web database*
+###### Create a Trinotate Web database
 
 ```
 # First create a boiler plate database TrinotateWeb.sqlite
@@ -183,11 +183,12 @@ rm species_annotations.txt transcripts.txt genes.txt
 #http://localhost:8080/cgi-bin/index.cgi
 ```
 
-# Arsenophonus melophagi
+## Arsenophonus melophagi
 
-*Read mapping in Bowtie 2*
+###### Read mapping in Bowtie 2
 
-*Abundance estimation and transcriptome analysis in Rockhopper*
+###### Pseudogene annotation in Pseudo-finder
 
-*Pseudogene annotation in Pseudo-finder*
+###### Abundance estimation and transcriptome analysis in Rockhopper
+
 
