@@ -2,8 +2,27 @@
 
 *Table of contents*
 ====================
-   * [Melophagus ovinus](#melophagus-ovinus)
-   * [Arsenophonus melophagi](#arsenophonus-melophagi)
+  * [<em>Table of contents</em>](#table-of-contents)
+      * [Melophagus ovinus](#melophagus-ovinus)
+                  * [Data quality assesment in FastQC](#data-quality-assesment-in-fastqc)
+                  * [Adapter and quality trimming in Cutadapt and Sickle](#adapter-and-quality-trimming-in-cutadapt-and-sickle)
+                  * [SSU contamination assesment in PhyloFlash](#ssu-contamination-assesment-in-phyloflash)
+                  * [Total metatranscriptome assembly in Trinity (singletons not used)](#total-metatranscriptome-assembly-in-trinity-singletons-not-used)
+                  * [Completeness assesment in BUSCO (total metatranscriptome)](#completeness-assesment-in-busco-total-metatranscriptome)
+                  * [Protein prediction in Transdecoder (total metatranscriptome)](#protein-prediction-in-transdecoder-total-metatranscriptome)
+                  * [Species composition assesmennt for gut vs bacteriome in Blobtools](#species-composition-assesmennt-for-gut-vs-bacteriome-in-blobtools)
+                  * [Transcript abundance estimation in RSEM](#transcript-abundance-estimation-in-rsem)
+                  * [Relatively strict removal of contamination and lowly expressed transcripts](#relatively-strict-removal-of-contamination-and-lowly-expressed-transcripts)
+                  * [Completeness assesment in BUSCO (filtered M. ovinus transcriptome)](#completeness-assesment-in-busco-filtered-m-ovinus-transcriptome)
+                  * [Protein prediction in Transdecoder (filtered M. ovinus transcriptome)](#protein-prediction-in-transdecoder-filtered-m-ovinus-transcriptome)
+                  * [QC samples and biological replicates](#qc-samples-and-biological-replicates)
+                  * [Differential expression analysis in EdgeR](#differential-expression-analysis-in-edger)
+                  * [Functional annotation in Trinotate](#functional-annotation-in-trinotate)
+                  * [Create a Trinotate Web database](#create-a-trinotate-web-database)
+      * [Arsenophonus melophagi](#arsenophonus-melophagi)
+                  * [Read mapping in Bowtie 2](#read-mapping-in-bowtie-2)
+                  * [Pseudogene annotation in Pseudo-finder](#pseudogene-annotation-in-pseudo-finder)
+                  * [Abundance estimation and transcriptome analysis in Rockhopper](#abundance-estimation-and-transcriptome-analysis-in-rockhopper)
 
 
 ## Melophagus ovinus
