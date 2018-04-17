@@ -1,4 +1,6 @@
-# Commands to reproduce the RNA-Seq analysis of M. ovinus published in Husnik et al.
+# Commands to reproduce the RNA-Seq analysis of M. ovinus
+
+**Husnik, Hypsa, and Darby 2018; in preparation.**
 
 **Table of contents**
 ====================
@@ -26,21 +28,14 @@
 
 ## Melophagus ovinus
 
-This analysis was never intended to be run as a script, but if you decide to do so (and fix file names, locations, etc.), be cautious.
-```
-#!/usr/bin/env bash
-set -e
-set -o pipefail
-```
+This analysis was not run as a script, but if you decide to do so (and fix file names, locations, etc.), be cautious and use *set -e* and *set -o pipefail* in bash.
 
 ###### Data quality assesment in FastQC
 ```
 /opt/FastQC/fastqc *.fastq.gz
 ```
 ###### Adapter and quality trimming in Cutadapt and Sickle
-```
-# Carried out by the sequencing centre.
-```
+The data were provided preprocessed by the sequencing centre. Raw Fastq files were trimmed for the presence of Illumina adapter sequences using Cutadapt v1.1 [http://code.google.com/p/cutadapt]. Option -O 3 was used, so that the 3' end of any read which matched the adapter sequence for 3 bp or more was trimmed. The reads were further quality-trimmed by Sickle v1.200 [https://github.com/najoshi/sickle] with a minimum window quality score of 20. Reads shorter than 10 bp after trimming and singlet reads were removed.
 ###### SSU contamination assesment in PhyloFlash
 ```
 #RNA-Seq
@@ -124,13 +119,10 @@ perl -ne 'if(/^>(\S+)/){$c=$i{$1}}$c?print:chomp;$i{$_}=1 if @ARGV' decontaminat
 /opt/TransDecoder-TransDecoder-v5.1.0/TransDecoder.Predict -t Trinity_expressed_decontaminated.fasta
 ```
 
-
 ###### QC samples and biological replicates
 ```
 /opt/trinityrnaseq-Trinity-v2.4.0/Analysis/DifferentialExpression/PtR --matrix RSEM_results/matrix.counts.matrix --samples samples_files.tsv --CPM --log2 --min_rowSums 10 --compare_replicates
-
 /opt/trinityrnaseq-Trinity-v2.4.0/Analysis/DifferentialExpression/PtR --matrix RSEM_results/matrix.counts.matrix --min_rowSums 10 -s samples_files.tsv --log2 --CPM --sample_cor_matrix
-
 /opt/trinityrnaseq-Trinity-v2.4.0/Analysis/DifferentialExpression/PtR --matrix RSEM_results/matrix.counts.matrix -s samples_files.tsv --min_rowSums 10 --log2 --CPM --center_rows --prin_comp 3
 ```
 
@@ -147,11 +139,11 @@ hmmscan --cpu 16 --domtblout TrinotatePFAM.out /opt/Trinotate-Trinotate-v3.1.1/P
 /opt/signalp-4.1/signalp_4.1 -f short -n signalp.out Trinity.fasta.transdecoder.pep
 /opt/tmhmm-2.0c/bin/tmhmm --short < Trinity.fasta.transdecoder.pep > tmhmm.out
 
-# Only eukaryotic rRNAs (on Rosetta)
+# Only eukaryotic rRNAs
 #/opt/Trinotate-Trinotate-v3.1.1/util/rnammer_support/RnammerTranscriptome.pl --transcriptome Trinity.fasta --path_to_rnammer /opt/rnammer-1.2/rnammer
 mv Trinity.fasta.rnammer.gff Trinity.euk.fasta.rnammer.gff
 
-# To also get bacterial rRNA coordinates (on Rosetta)
+# To also get bacterial rRNA coordinates
 #perl /opt/rnammer-1.2/rnammer -S bac -m tsu,lsu,ssu -gff bac.tmp.superscaff.rnammer.gff < transcriptSuperScaffold.fasta
 #/opt/Trinotate-Trinotate-v3.1.1/util/rnammer_support/util/rnammer_supperscaffold_gff_to_indiv_transcripts.pl -R bac.tmp.superscaff.rnammer.gff -T transcriptSuperScaffold.bed > Trinity.bac.fasta.rnammer.gff
 
@@ -187,7 +179,7 @@ cd TrinotateWeb/
 # Import text annotations
 /opt/Trinotate-Trinotate-v3.1.1/util/annotation_importer/import_transcript_names.pl TrinotateWeb.sqlite trinotate_annotation_report.xls
 
-# Alternatively, import species assignment from the Blobtools taxonomy table
+# Alternatively, import species assignments from the Blobtools taxonomy table
 #gene_id (tab) transcript_id (tab) annotation text
 #create a taxonomy file first
 #grep -v "#" blobDB.bestsum.table.txt | cut -f 8,12,16,20,24,28 | sed s"/\t/:/"g > species_annotations.txt
@@ -206,10 +198,15 @@ cd TrinotateWeb/
 ## Arsenophonus melophagi
 
 ###### Read mapping in Bowtie 2
-
+```
+bowtie2-build ARM.fasta ARM.fasta.
+bowtie2 -a --no-unal --threads 8 -x ARM.fasta -1 B1_ATCACG_L002_R1_trim_001.fastq,B2_CGATGT_L002_R1_trim_0 01.fastq,B4_TTAGGC_L002_R1_trim_001.fastq,B6_TGACCA_L002_R1_trim_001.fastq,B7_ACAGTG_L002_R1_trim_001.fastq -2 B1_ATCACG_L002_R2_trim_001.fastq,B2_CGATGT_L002_R2_trim_001.fastq,B4_TTAGGC_L002_R2_trim_001.fastq,B6_TGACCA_L002_R2_trim_001.fastq,B7_ACAGTG_L002_R2_trim_001.fastq  | samtools view -bS - > ARM_PE.bam
+samtools sort ARM_PE.bam ARM_PE_sorted
+samtools index ARM_PE_sorted.bam ARM_PE_sorted.bam.bai
+```
 ###### Pseudogene annotation in Pseudo-finder
 Default settings in Pseudo-finder [https://github.com/filip-husnik/pseudo-finder] and manual curation in Artemis/Bamview according to expression data.
 
 ###### Abundance estimation and transcriptome analysis in Rockhopper
-
+Rockhopper has a graphical user interface and its default analysis with five biological replicates (bacteriome libraries) was used for *Arsenophonus melophagi* [https://cs.wellesley.edu/~btjaden/Rockhopper/].
 
