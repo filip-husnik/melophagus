@@ -2,7 +2,7 @@
 
 **Husnik, Hypsa, and Darby 2018; in preparation.**
 
-Data:
+Data generated:
 
 (1) 1 strand-specific RNA-Seq library from *M. ovinus* female
 
