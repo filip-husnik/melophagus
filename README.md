@@ -26,8 +26,9 @@
 
 ## Melophagus ovinus
 
+This analysis was never intended to be run as a script, but if you decide to do so (and fix file names, locations, etc.), be cautious.
 ```
-#!/usr/bin/bash
+#!/usr/bin/env bash
 set -e
 set -o pipefail
 ```
