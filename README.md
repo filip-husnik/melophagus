@@ -186,16 +186,16 @@ cd TrinotateWeb/
 # Import text annotations
 /opt/Trinotate-Trinotate-v3.1.1/util/annotation_importer/import_transcript_names.pl TrinotateWeb.sqlite trinotate_annotation_report.xls
 
-# Import species assignment from the Blobtools taxonomy table
+# Alternatively, import species assignment from the Blobtools taxonomy table
 #gene_id (tab) transcript_id (tab) annotation text
 #create a taxonomy file first
-grep -v "#" blobDB.bestsum.table.txt | cut -f 8,12,16,20,24,28 | sed s"/\t/:/"g > species_annotations.txt
-grep -v "#" blobDB.bestsum.table.txt | cut -f 1 > transcripts.txt
-cut -f 1,2,3,4 transcripts.txt -d '_' > genes.txt
-paste genes.txt transcripts.txt species_annotations.txt > taxonomy_annotation.tsv
-rm species_annotations.txt transcripts.txt genes.txt
+#grep -v "#" blobDB.bestsum.table.txt | cut -f 8,12,16,20,24,28 | sed s"/\t/:/"g > species_annotations.txt
+#grep -v "#" blobDB.bestsum.table.txt | cut -f 1 > transcripts.txt
+#cut -f 1,2,3,4 transcripts.txt -d '_' > genes.txt
+#paste genes.txt transcripts.txt species_annotations.txt > taxonomy_annotation.tsv
+#rm species_annotations.txt transcripts.txt genes.txt
 
-/opt/Trinotate-Trinotate-v3.1.1/util/annotation_importer/import_transcript_names.pl TrinotateWeb.sqlite taxonomy_annotation.tsv
+#/opt/Trinotate-Trinotate-v3.1.1/util/annotation_importer/import_transcript_names.pl TrinotateWeb.sqlite taxonomy_annotation.tsv
 
 #Run the webserver on your own computer
 #/home/filip/programs/Trinotate-Trinotate-v3.1.1/run_TrinotateWebserver.pl 8080
@@ -207,6 +207,7 @@ rm species_annotations.txt transcripts.txt genes.txt
 ###### Read mapping in Bowtie 2
 
 ###### Pseudogene annotation in Pseudo-finder
+Default settings in Pseudo-finder [https://github.com/filip-husnik/pseudo-finder] and manual curation in Artemis/Bamview according to expression data.
 
 ###### Abundance estimation and transcriptome analysis in Rockhopper
 
