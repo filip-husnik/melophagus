@@ -3,9 +3,13 @@
 **Husnik, Hypsa, and Darby 2018; in preparation.**
 
 Data:
+
 (1) 1 strand-specific RNA-Seq library from *M. ovinus* female
+
 (2) 1 strand-specific RNA-Seq library from *M. ovinus* male
+
 (3) 5 strand-specific RNA-Seq libraries for the bacteriome section of midgut (5 biological replicates)
+
 (4) 5 strand-specific RNA-Seq libraries for the remaining sections of gut (5 biological replicates)
 
 **Table of contents**
