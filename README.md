@@ -225,6 +225,12 @@ samtools index ARM_PE_sorted.bam ARM_PE_sorted.bam.bai
 ###### Pseudogene annotation in Pseudo-finder
 Default settings in Pseudo-finder [https://github.com/filip-husnik/pseudo-finder] and manual curation in Artemis/Bamview according to expression data.
 
+```
+python3 pseudo_finder.py annotate --genome AME.gbf --outprefix AMEps --database nr --outformat 124 --threads 18
+python3 pseudo_finder.py visualize --genome AME.gbf --outprefix AMEps_plots --blastp AMEps_AME.gbf_proteome.faa.blastP_output.tsv --blastx AMEps_AME.gbf_intergenic.fasta.blastX_output.tsv --hitcap 15
+python3 pseudo_finder.py map --genome AME.gbf --gff AMEps_AME.gbf_pseudos.gff --outprefix AMEps_map
+```
+
 ###### Abundance estimation and transcriptome analysis in Rockhopper
 Rockhopper has a graphical user interface and its default analysis with five biological replicates (bacteriome libraries) was used for *Arsenophonus melophagi* [https://cs.wellesley.edu/~btjaden/Rockhopper/].
 
