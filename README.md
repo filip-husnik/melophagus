@@ -222,8 +222,15 @@ bowtie2 -a --no-unal --threads 8 -x ARM.fasta -1 B1_ATCACG_L002_R1_trim_001.fast
 samtools sort ARM_PE.bam ARM_PE_sorted
 samtools index ARM_PE_sorted.bam ARM_PE_sorted.bam.bai
 ```
+
 ###### Pseudogene annotation in Pseudo-finder
-Default settings in Pseudo-finder [https://github.com/filip-husnik/pseudo-finder] and manual curation in Artemis/Bamview according to expression data.
+
+Initial annotation in PROKKA
+```
+prokka --compliant --rfam --gram neg AME.fasta
+```
+
+Pseudo-finder [https://github.com/filip-husnik/pseudo-finder] pseudogene annotation/visualization and manual curation in Artemis/Bamview according to expression data.
 
 ```
 python3 pseudo_finder.py annotate --genome AME.gbf --outprefix AMEps --database nr --outformat 124 --threads 18
