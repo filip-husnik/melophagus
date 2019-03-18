@@ -1,6 +1,6 @@
 # Commands to reproduce RNA-Seq analyses of *Melophagus ovinus*
 
-**Husnik, Hypsa, and Darby 2018; in preparation.**
+**Husnik, Hypsa, and Darby 2018; https://www.biorxiv.org/content/10.1101/572495v1.**
 
 Data generated:
 
